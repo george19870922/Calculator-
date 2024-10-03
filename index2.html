@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Продвинутый Калькулятор Материалов</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #121212;
+            color: #00ffc6;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Избегаем горизонтальной прокрутки */
+        }
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 2.5em; /* Уменьшенный размер заголовка */
+            color: #00ffc6;
+            text-shadow: 0 0 15px #00ffc6, 0 0 25px #00ffc6;
+            animation: shimmer 1.5s infinite; /* Добавляем анимацию мерцания */
+        }
+        @keyframes shimmer {
+            0% { color: #00ffc6; }
+            50% { color: #ff00c1; } /* Изменение цвета во время мерцания */
+            100% { color: #00ffc6; }
+        }
+        .container {
+            width: 90%;
+            max-width: 600px; /* Максимальная ширина для мобильных устройств */
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 25px #00ffc6;
+        }
+        label, input {
+            display: block;
+            margin: 10px 0;
+            font-size: 1.2em; /* Уменьшенный размер текста */
+            color: #fff;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #222;
+            color: #00ffc6;
+            font-size: 1em; /* Размер шрифта для ввода */
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 15px;
+            background-color: #111;
+            color: #00ffc6;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em; /* Размер шрифта для кнопки */
+            cursor: pointer;
+            transition: 0.3s ease-in-out;
+        }
+        button:hover {
+            background-color: #333;
+            transform: scale(1.05);
+        }
+        .results {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #00ffc6;
+            animation: fadeIn 0.5s ease-in-out;
+            font-size: 1em; /* Размер шрифта для таблицы */
+        }
+        th {
+            background-color: #111;
+        }
+        .hamburger {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .hamburger div {
+            width: 30px;
+            height: 3px;
+            margin: 6px 0;
+            background-color: #00ffc6;
+            transition: 0.3s ease-in-out;
+        }
+        .menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #121212;
+            box-shadow: 0 0 15px #00ffc6;
+            padding: 50px 20px;
+            transition: 0.3s ease;
+        }
+        .menu a {
+            color: #00ffc6;
+            text-decoration: none;
+            display: block;
+            padding: 10px 0;
+        }
+        .menu a:hover {
+            text-shadow: 0 0 10px #00ffc6;
+        }
+        .menu.active {
+            display: block;
+        }
+        .animate-fade {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .animate-fade.fade-in {
+            opacity: 1;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2em; /* Уменьшенный заголовок для мобильных устройств */
+            }
+            input, button {
+                font-size: 1em; /* Уменьшенный размер шрифта для мобильных устройств */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Меню -->
+<div class="hamburger" onclick="toggleMenu()">
+    <div></div>
+    <div></div>
+    <div></div>
+</div>
+
+<div class="menu" id="dropdownMenu">
+    <a href="#">Главная</a>
+    <a href="#">Сохранить результат</a>
+    <a href="#">Загрузить результат</a>
+    <a href="#">Настройки</a>
+</div>
+
+<div class="container">
+    <h1>Калькулятор Материалов</h1>
+
+    <!-- Поля для ввода материалов -->
+    <label for="cement">Цемент (мешки):</label>
+    <input type="number" id="cement" value="0">
+
+    <label for="sand">Песок (м³):</label>
+    <input type="number" id="sand" value="0">
+
+    <label for="tiles">Плитка (шт.):</label>
+    <input type="number" id="tiles" value="0">
+
+    <label for="rebar">Арматура (пог.м.):</label>
+    <input type="number" id="rebar" value="0">
+
+    <!-- Новые поля для ввода материалов -->
+    <label for="tileGlue">Клей для плитки (мешки):</label>
+    <input type="number" id="tileGlue" value="0">
+
+    <label for="coloredTiles">Плитка цветная (шт.):</label>
+    <input type="number" id="coloredTiles" value="0">
+
+    <label for="polishedTiles">Плитка полированная (шт.):</label>
+    <input type="number" id="polishedTiles" value="0">
+
+    <label for="paint">Краска молотковая Dali (л):</label>
+    <input type="number" id="paint" value="0">
+
+    <label for="sealant">Герметик Soudal (шт.):</label>
+    <input type="number" id="sealant" value="0">
+
+    <label for="grayMarbleCrumbs">Крошка мраморная серая (мешки):</label>
+    <input type="number" id="grayMarbleCrumbs" value="0">
+
+    <label for="whiteMarbleCrumbs">Крошка мраморная белая (мешки):</label>
+    <input type="number" id="whiteMarbleCrumbs" value="0">
+
+    <button onclick="calculateCost()">Рассчитать</button>
+
+    <!-- Результаты -->
+    <div class="results">
+        <h3>Общая стоимость: <span id="totalCost">0</span> руб.</h3>
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th>Материал</th>
+                    <th>Количество</th>
+                    <th>Цена за ед.</th>
+                    <th>Итого</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Заполненные данные -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const prices = {
+        cement: 650,
+        sand: 1850,
+        tiles: 130,
+        rebar: 60,
+        tileGlue: 880,
+        coloredTiles: 155,
+        polishedTiles: 325,
+        paint: 1500,
+        sealant: 2200,
+        grayMarbleCrumbs: 715,
+        whiteMarbleCrumbs: 700
+    };
+
+    function toggleMenu() {
+        const menu = document.getElementById('dropdownMenu');
+        menu.classList.toggle('active');
+    }
+
+    function calculateCost() {
+        const cementQty = +document.getElementById('cement').value;
+        const sandQty = +document.getElementById('sand').value;
+        const tilesQty = +document.getElementById('tiles').value;
+        const rebarQty = +document.getElementById('rebar').value;
+        const tileGlueQty = +document.getElementById('tileGlue').value;
+        const coloredTilesQty = +document.getElementById('coloredTiles').value;
+        const polishedTilesQty = +document.getElementById('polishedTiles').value;
+        const paintQty = +document.getElementById('paint').value;
+        const sealantQty = +document.getElementById('sealant').value;
+        const grayMarbleCrumbsQty = +document.getElementById('grayMarbleCrumbs').value;
+        const whiteMarbleCrumbsQty = +document.getElementById('whiteMarbleCrumbs').value;
+
+        const totalCost = (cementQty * prices.cement) +
+                          (sandQty * prices.sand) +
+                          (tilesQty * prices.tiles) +
+                          (rebarQty * prices.rebar) +
+                          (tileGlueQty * prices.tileGlue) +
+                          (coloredTilesQty * prices.coloredTiles) +
+                          (polishedTilesQty * prices.polishedTiles) +
+                          (paintQty * prices.paint) +
+                          (sealantQty * prices.sealant) +
+                          (grayMarbleCrumbsQty * prices.grayMarbleCrumbs) +
+                          (whiteMarbleCrumbsQty * prices.whiteMarbleCrumbs);
+
+        document.getElementById('totalCost').textContent = totalCost;
+
+        // Populate results table
+        const resultsTableBody = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
+        resultsTableBody.innerHTML = ""; // Clear previous results
+
+        const materials = [
+            {name: 'Цемент', qty: cementQty, price: prices.cement},
+            {name: 'Песок', qty: sandQty, price: prices.sand},
+            {name: 'Плитка', qty: tilesQty, price: prices.tiles},
+            {name: 'Арматура', qty: rebarQty, price: prices.rebar},
+            {name: 'Клей для плитки', qty: tileGlueQty, price: prices.tileGlue},
+            {name: 'Цветная плитка', qty: coloredTilesQty, price: prices.coloredTiles},
+            {name: 'Полированная плитка', qty: polishedTilesQty, price: prices.polishedTiles},
+            {name: 'Краска', qty: paintQty, price: prices.paint},
+            {name: 'Герметик', qty: sealantQty, price: prices.sealant},
+            {name: 'Крошка мраморная серая', qty: grayMarbleCrumbsQty, price: prices.grayMarbleCrumbs},
+            {name: 'Крошка мраморная белая', qty: whiteMarbleCrumbsQty, price: prices.whiteMarbleCrumbs}
+        ];
+
+        materials.forEach(material => {
+            if (material.qty > 0) {
+                const row = resultsTableBody.insertRow();
+                row.insertCell(0).textContent = material.name;
+                row.insertCell(1).textContent = material.qty;
+                row.insertCell(2).textContent = material.price;
+                row.insertCell(3).textContent = material.qty * material.price;
+            }
+        });
+    }
+</script>
+</body>
+</html>
